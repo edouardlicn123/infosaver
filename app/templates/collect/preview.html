@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}确认客户信息{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>确认客户信息</h5>
+                <span class="badge bg-primary">{{ data|length }} 条记录</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('collect.confirm') }}">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 25%">姓名</th>
+                                    <th style="width: 25%">职位</th>
+                                    <th style="width: 30%">邮箱</th>
+                                    <th style="width: 15%">来源</th>
+                                    <th style="width: 5%">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in data %}
+                                <tr class="{{ 'table-danger' if item.status == 'no_email' else '' }}">
+                                    <td>
+                                        <input type="text" class="form-control" name="name" value="{{ item.name }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="position" value="{{ item.position }}">
+                                    </td>
+                                    <td>
+                                        <input type="email" class="form-control" name="email" value="{{ item.email1 }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="source" value="{{ item.source }}">
+                                    </td>
+                                    <td>
+                                        {% if item.status == 'no_email' %}
+                                        <span class="badge bg-danger">无邮箱</span>
+                                        {% else %}
+                                        <span class="badge bg-success">正常</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success">确认保存</button>
+                        <a href="{{ url_for('collect.index') }}" class="btn btn-secondary">返回重新输入</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

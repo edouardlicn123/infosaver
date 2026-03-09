@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}导出客户数据{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>导出客户数据</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{{ url_for('export.export_xls') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">导出 Excel (.xlsx)</h6>
+                            <small>完整信息</small>
+                        </div>
+                        <p class="mb-1">包含所有客户字段：姓名、职位、邮箱、电话、企业、国籍等</p>
+                    </a>
+                    
+                    <a href="{{ url_for('export.export_csv') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">导出 CSV (.csv)</h6>
+                            <small>通用格式</small>
+                        </div>
+                        <p class="mb-1">适合导入其他软件或数据库</p>
+                    </a>
+                    
+                    <a href="{{ url_for('export.export_emails') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">导出邮箱列表 (.txt)</h6>
+                            <small>仅邮箱</small>
+                        </div>
+                        <p class="mb-1">每行一个邮箱地址，适合批量发送邮件</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="{{ url_for('customers.list') }}" class="btn btn-secondary">返回客户列表</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

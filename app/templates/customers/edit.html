@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}编辑客户信息{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h5>编辑客户信息</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">姓名 *</label>
+                            <input type="text" class="form-control" name="name" value="{{ customer.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">职位</label>
+                            <input type="text" class="form-control" name="position" value="{{ customer.position }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">邮箱 1</label>
+                            <input type="email" class="form-control" name="email1" value="{{ customer.email1 }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">邮箱 2</label>
+                            <input type="email" class="form-control" name="email2" value="{{ customer.email2 }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">电话 1</label>
+                            <input type="text" class="form-control" name="phone1" value="{{ customer.phone1 }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">电话 2</label>
+                            <input type="text" class="form-control" name="phone2" value="{{ customer.phone2 }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">企业</label>
+                            <input type="text" class="form-control" name="company" value="{{ customer.company }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">国籍</label>
+                            <input type="text" class="form-control" name="nationality" value="{{ customer.nationality }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                        <a href="{{ url_for('customers.list') }}" class="btn btn-secondary">返回列表</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

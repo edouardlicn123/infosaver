@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}客户列表{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>客户列表</h5>
+                <div>
+                    <a href="{{ url_for('collect.index') }}" class="btn btn-primary btn-sm">添加客户</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('customers.list') }}" class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="search" placeholder="搜索姓名/邮箱/企业" value="{{ search }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-primary">搜索</button>
+                            {% if search %}
+                            <a href="{{ url_for('customers.list') }}" class="btn btn-outline-secondary">清除</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>姓名</th>
+                                <th>职位</th>
+                                <th>邮箱</th>
+                                <th>电话</th>
+                                <th>企业</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                            <tr>
+                                <td>{{ customer.id }}</td>
+                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.position }}</td>
+                                <td>{{ customer.email1 }}</td>
+                                <td>{{ customer.phone1 or '-' }}</td>
+                                <td>{{ customer.company or '-' }}</td>
+                                <td>
+                                    <a href="{{ url_for('customers.edit', id=customer.id) }}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <form method="POST" action="{{ url_for('customers.delete', id=customer.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除此客户?')">删除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">暂无数据</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if total > per_page %}
+                <nav>
+                    <ul class="pagination">
+                        {% for p in range(1, (total // per_page) + 2) %}
+                        <li class="page-item {{ 'active' if p == page else '' }}">
+                            <a class="page-link" href="{{ url_for('customers.list', page=p, search=search) }}">{{ p }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+                <div class="mt-2">
+                    <small class="text-muted">共 {{ total }} 条记录</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

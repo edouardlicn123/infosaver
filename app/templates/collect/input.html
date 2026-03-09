@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}收集客户信息{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>收集客户信息</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('collect.preview') }}">
+                    <div class="mb-3">
+                        <label for="raw_data" class="form-label">请粘贴客户资料</label>
+                        <textarea class="form-control" id="raw_data" name="raw_data" rows="15" placeholder="粘贴格式：姓名 职位 邮箱 来源"></textarea>
+                        <div class="form-text">支持格式：姓名、职位、邮箱、来源（按 Tab 或空格分隔）</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">解析数据</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
