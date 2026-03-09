@@ -25,15 +25,15 @@ if [ ${#MISSING[@]} -gt 0 ]; then
 fi
 
 # 启动服务器并自动打开浏览器
-echo "服务器启动中: http://127.0.0.1:5000"
+echo "服务器启动中: http://127.0.0.1:5688"
 python3 run.py &
 sleep 2
 
 # 自动打开浏览器
 if command -v xdg-open &> /dev/null; then
-    xdg-open http://127.0.0.1:5000
+    xdg-open http://127.0.0.1:5688
 elif command -v gnome-open &> /dev/null; then
-    gnome-open http://127.0.0.1:5000
+    gnome-open http://127.0.0.1:5688
 elif command -v open &> /dev/null; then
-    open http://127.0.0.1:5000
+    open http://127.0.0.1:5688
 fi

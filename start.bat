@@ -23,13 +23,13 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo 服务器启动中: http://127.0.0.1:5000
+echo 服务器启动中: http://127.0.0.1:5688
 echo.
 
 start /b python run.py >nul 2>&1
 
 timeout /t 2 /nobreak >nul
 
-start http://127.0.0.1:5000
+start http://127.0.0.1:5688
 
 echo 浏览器已打开，按 Ctrl+C 停止服务器
