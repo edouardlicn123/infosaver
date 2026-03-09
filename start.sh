@@ -24,6 +24,16 @@ if [ ${#MISSING[@]} -gt 0 ]; then
     pip install --break-system-packages -r requirements.txt
 fi
 
-# 启动服务器
+# 启动服务器并自动打开浏览器
 echo "服务器启动中: http://127.0.0.1:5000"
-python3 run.py
+python3 run.py &
+sleep 2
+
+# 自动打开浏览器
+if command -v xdg-open &> /dev/null; then
+    xdg-open http://127.0.0.1:5000
+elif command -v gnome-open &> /dev/null; then
+    gnome-open http://127.0.0.1:5000
+elif command -v open &> /dev/null; then
+    open http://127.0.0.1:5000
+fi
