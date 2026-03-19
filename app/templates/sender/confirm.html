@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}确认发送 - 客户信息管理系统{% endblock %}
+
+{% block content %}
+<h2>确认发送</h2>
+
+<div class="alert alert-warning">
+    <strong>即将发送邮件给以下收件人（共 {{ customers|length }} 人）：</strong>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">收件人列表</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>邮箱</th>
+                        <th>姓名</th>
+                        <th>公司</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ customer.email1 }}</td>
+                        <td>{{ customer.name or '-' }}</td>
+                        <td>{{ customer.company or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">邮件摘要</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>主题：</strong>{{ content.title }}</p>
+        <p><strong>内容预览：</strong></p>
+        <div class="border rounded p-3 bg-light">
+            {{ content.body|safe }}
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">发送设置</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>SMTP：</strong>{{ smtp_config.name if smtp_config else '默认' }} ({{ smtp_config.smtp_host if smtp_config else '-' }})</p>
+        <p><strong>发送间隔：</strong>{{ interval }} 秒</p>
+        <p><strong>收件人数量：</strong>{{ customers|length }} 人</p>
+        <p><strong>预计耗时：</strong>约 {{ ((customers|length - 1) * interval / 60)|round|int }} 分钟</p>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <strong>注意：</strong>发送过程可能需要几分钟，请勿关闭页面
+</div>
+
+<div class="text-center mb-4">
+    <form method="post" action="{{ url_for('sender.send') }}" class="d-inline">
+        <button type="submit" class="btn btn-danger btn-lg">
+            确认发送
+        </button>
+    </form>
+    <a href="{{ url_for('sender.index') }}" class="btn btn-secondary btn-lg ms-2">
+        返回修改
+    </a>
+</div>
+{% endblock %}

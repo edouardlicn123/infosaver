@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑' if config else '添加' }}SMTP配置 - 客户信息管理系统{% endblock %}
+
+{% block content %}
+<h2>{{ '编辑' if config else '添加' }}SMTP配置</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label for="name" class="form-label">配置名称 *</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ config.name if config else '' }}" required maxlength="50" placeholder="例如：公司邮箱">
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="smtp_host" class="form-label">SMTP服务器 *</label>
+            <input type="text" class="form-control" id="smtp_host" name="smtp_host" value="{{ config.smtp_host if config else '' }}" required placeholder="smtp.example.com">
+        </div>
+        <div class="col-md-4">
+            <label for="smtp_port" class="form-label">端口 *</label>
+            <input type="number" class="form-control" id="smtp_port" name="smtp_port" value="{{ config.smtp_port if config else 587 }}" required min="1" max="65535">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="smtp_user" class="form-label">用户名/邮箱 *</label>
+        <input type="email" class="form-control" id="smtp_user" name="smtp_user" value="{{ config.smtp_user if config else '' }}" required placeholder="your-email@example.com">
+    </div>
+
+    <div class="mb-3">
+        <label for="smtp_password" class="form-label">密码/授权码 *</label>
+        <input type="password" class="form-control" id="smtp_password" name="smtp_password" value="{{ config.smtp_password if config else '' }}" required placeholder="输入密码或授权码">
+        <small class="text-muted">建议使用授权码而非登录密码</small>
+    </div>
+
+    <div class="mb-3">
+        <label for="ssl_mode" class="form-label">加密方式</label>
+        <select class="form-select" id="ssl_mode" name="ssl_mode" onchange="updatePort()">
+            <option value="ssl" {% if config and config.use_tls == 2 %}selected{% endif %}>SSL (端口465) - 推荐</option>
+            <option value="tls" {% if config and config.use_tls == 1 %}selected{% endif %}>TLS (端口587)</option>
+            <option value="none" {% if config and config.use_tls == 0 %}selected{% endif %}>无加密</option>
+        </select>
+        <input type="hidden" name="use_tls" id="use_tls" value="{{ config.use_tls if config else 2 }}">
+    </div>
+
+    <script>
+    function updatePort() {
+        var mode = document.getElementById('ssl_mode').value;
+        var portInput = document.getElementById('smtp_port');
+        var useTlsInput = document.getElementById('use_tls');
+        
+        if (mode == 'ssl') {
+            portInput.value = 465;
+            useTlsInput.value = 2;
+        } else if (mode == 'tls') {
+            portInput.value = 587;
+            useTlsInput.value = 1;
+        } else {
+            portInput.value = 25;
+            useTlsInput.value = 0;
+        }
+    }
+    
+    if (document.getElementById('smtp_port').value === '587' || document.getElementById('smtp_port').value === '') {
+        document.getElementById('ssl_mode').value = 'ssl';
+        document.getElementById('smtp_port').value = '465';
+        document.getElementById('use_tls').value = '2';
+    }
+    
+    document.getElementById('ssl_mode').addEventListener('change', updatePort);
+    </script>
+
+    <hr>
+
+    <div class="mb-3">
+        <label for="sender_name" class="form-label">发件人名称</label>
+        <input type="text" class="form-control" id="sender_name" name="sender_name" value="{{ config.sender_name if config else '' }}" placeholder="公司名称或个人姓名">
+    </div>
+
+    <div class="mb-3">
+        <label for="sender_email" class="form-label">发件人邮箱 *</label>
+        <input type="email" class="form-control" id="sender_email" name="sender_email" value="{{ config.sender_email if config else '' }}" required placeholder="your-email@example.com">
+    </div>
+
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="is_default" name="is_default" {% if config and config.is_default %}checked{% endif %}>
+        <label class="form-check-label" for="is_default">设为默认配置</label>
+        <small class="text-muted d-block">发信时默认使用此配置</small>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">{{ '保存修改' if config else '添加配置' }}</button>
+        <a href="{{ url_for('smtp.index') }}" class="btn btn-secondary">取消</a>
+    </div>
+</form>
+{% endblock %}

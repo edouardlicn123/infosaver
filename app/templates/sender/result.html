@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}发送完成 - 客户信息管理系统{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="text-success mb-4">发送完成</h1>
+    
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h3 class="card-title">发送结果</h3>
+            
+            {% if fail_count == 0 %}
+            <p class="text-success fs-4">成功发送给 {{ success_count }} 位收件人</p>
+            {% else %}
+            <p class="text-warning fs-4">部分成功：成功 {{ success_count }} 位，失败 {{ fail_count }} 位</p>
+            {% endif %}
+            
+            <hr>
+            
+            <table class="table table-sm text-start">
+                <tr>
+                    <td><strong>发送总数</strong></td>
+                    <td>{{ total }} 人</td>
+                </tr>
+                <tr>
+                    <td><strong>成功</strong></td>
+                    <td class="text-success">{{ success_count }} 人</td>
+                </tr>
+                <tr>
+                    <td><strong>失败</strong></td>
+                    <td class="text-danger">{{ fail_count }} 人</td>
+                </tr>
+            </table>
+            
+            {% if errors %}
+            <div class="alert alert-danger text-start">
+                <strong>失败详情：</strong>
+                <ul class="mb-0">
+                    {% for error in errors[:5] %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% if errors|length > 5 %}
+                    <li>...还有 {{ errors|length - 5 }} 条错误</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('logs.index') }}" class="btn btn-outline-primary">查看发送日志</a>
+        <a href="{{ url_for('sender.index') }}" class="btn btn-primary ms-2">继续发送</a>
+    </div>
+</div>
+{% endblock %}

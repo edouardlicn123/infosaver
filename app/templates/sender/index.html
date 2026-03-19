@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}发送邮件 - 客户信息管理系统{% endblock %}
+
+{% block content %}
+<h2>发送邮件</h2>
+
+<form method="post" action="{{ url_for('sender.confirm') }}" id="senderForm">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">第一步：选择邮件内容</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="content_id" class="form-label">邮件模板 *</label>
+                <select class="form-select" id="content_id" name="content_id" required onchange="updatePreview()">
+                    <option value="">请选择邮件模板</option>
+                    {% for item in contents %}
+                    <option value="{{ item.id }}" data-title="{{ item.title }}" data-body="{{ item.body }}">{{ item.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="previewBox" class="alert alert-secondary" style="display: none;">
+                <h6>预览：</h6>
+                <div id="previewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">第二步：选择收件人</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="searchKeyword" class="form-label">搜索</label>
+                    <input type="text" class="form-control" id="searchKeyword" placeholder="姓名/邮箱/公司">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchNationality" class="form-label">国籍</label>
+                    <select class="form-select" id="searchNationality">
+                        <option value="">全部</option>
+                        {% for item in nationalities %}
+                        <option value="{{ item.nationality }}">{{ item.nationality }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="searchCompany" class="form-label">公司</label>
+                    <select class="form-select" id="searchCompany">
+                        <option value="">全部</option>
+                        {% for item in companies %}
+                        <option value="{{ item.company }}">{{ item.company }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-primary w-100" onclick="searchCustomers()">搜索</button>
+                </div>
+            </div>
+            
+            <div class="mb-2">
+                <span id="customerCount" class="text-muted">共 0 位客户</span>
+            </div>
+            
+            <div id="customerList" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                <div class="text-center text-muted py-4">
+                    点击"搜索"查找客户
+                </div>
+            </div>
+            
+            <div class="mt-2">
+                <span id="selectedCount" class="badge bg-primary">已选择: 0 人</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">第三步：发送设置</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="interval" class="form-label">发送间隔</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="interval" name="interval" value="30" min="1" max="300">
+                        <span class="input-group-text">秒</span>
+                    </div>
+                    <small class="text-muted">每封邮件间隔时间，建议30-60秒</small>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">选择SMTP配置</label>
+                    {% if smtp_configs %}
+                    <div class="border rounded p-3 bg-light">
+                        <div class="row">
+                        {% for config in smtp_configs %}
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="smtp_id" id="smtp{{ config.id }}" value="{{ config.id }}" {% if config.is_default %}checked{% endif %}>
+                                    <label class="form-check-label" for="smtp{{ config.id }}">
+                                        <strong>{{ config.name }}</strong>
+                                        <small class="text-muted d-block">{{ config.smtp_host }}:{{ config.smtp_port }}</small>
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning mb-0">
+                        暂无SMTP配置，请先 <a href="{{ url_for('smtp.add') }}">添加配置</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" {% if not smtp_configs %}disabled{% endif %}>
+            预览确认
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedCustomers = new Set();
+
+function updatePreview() {
+    const select = document.getElementById('content_id');
+    const previewBox = document.getElementById('previewBox');
+    const previewContent = document.getElementById('previewContent');
+    const selected = select.options[select.selectedIndex];
+    
+    if (selected.value) {
+        previewBox.style.display = 'block';
+        const titleDiv = document.createElement('p');
+        titleDiv.innerHTML = '<strong>标题：</strong>';
+        const titleText = document.createTextNode(selected.dataset.title);
+        titleDiv.appendChild(titleText);
+        
+        const bodyDiv = document.createElement('p');
+        bodyDiv.innerHTML = '<strong>内容：</strong>';
+        const bodyText = document.createTextNode(selected.dataset.body.substring(0, 200));
+        bodyDiv.appendChild(bodyText);
+        
+        previewContent.innerHTML = '';
+        previewContent.appendChild(titleDiv);
+        previewContent.appendChild(bodyDiv);
+    } else {
+        previewBox.style.display = 'none';
+    }
+}
+
+function searchCustomers() {
+    const keyword = document.getElementById('searchKeyword').value;
+    const nationality = document.getElementById('searchNationality').value;
+    const company = document.getElementById('searchCompany').value;
+    
+    const params = new URLSearchParams();
+    if (keyword) params.append('keyword', keyword);
+    if (nationality) params.append('nationality', nationality);
+    if (company) params.append('company', company);
+    
+    fetch('{{ url_for("sender.search") }}?' + params.toString())
+        .then(r => r.json())
+        .then(customers => {
+            const list = document.getElementById('customerList');
+            document.getElementById('customerCount').textContent = '共 ' + customers.length + ' 位客户';
+            
+            if (customers.length === 0) {
+                list.innerHTML = '<div class="text-center text-muted py-4">没有找到符合条件的客户</div>';
+                return;
+            }
+            
+            let html = '<div class="form-check"><input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleAll(this)"><label class="form-check-label" for="selectAll"><strong>全选当前页</strong></label></div><hr>';
+            customers.forEach(c => {
+                const checked = selectedCustomers.has(c.id) ? 'checked' : '';
+                html += '<div class="form-check"><input class="form-check-input customer-checkbox" type="checkbox" value="' + c.id + '" id="c' + c.id + '" ' + checked + ' onchange="toggleCustomer(' + c.id + ')"><label class="form-check-label" for="c' + c.id + '">' + (c.email1 || '') + ' - ' + (c.name || '未知') + ' - ' + (c.company || '未知') + '</label></div>';
+            });
+            list.innerHTML = html;
+        });
+}
+
+function toggleCustomer(id) {
+    if (selectedCustomers.has(id)) {
+        selectedCustomers.delete(id);
+    } else {
+        selectedCustomers.add(id);
+    }
+    updateSelectedCount();
+}
+
+function toggleAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.customer-checkbox');
+    checkboxes.forEach(cb => {
+        if (checkbox.checked) {
+            selectedCustomers.add(parseInt(cb.value));
+            cb.checked = true;
+        } else {
+            selectedCustomers.delete(parseInt(cb.value));
+            cb.checked = false;
+        }
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    document.getElementById('selectedCount').textContent = '已选择: ' + selectedCustomers.size + ' 人';
+}
+
+document.getElementById('senderForm').onsubmit = function() {
+    if (selectedCustomers.size === 0) {
+        alert('请至少选择一位收件人');
+        return false;
+    }
+    
+    selectedCustomers.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'customer_ids';
+        input.value = id;
+        this.appendChild(input);
+    });
+    
+    return true;
+};
+
+searchCustomers();
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}发送详情 - 客户信息管理系统{% endblock %}
+
+{% block content %}
+<h2>发送详情 <a href="{{ url_for('logs.index') }}" class="btn btn-sm btn-secondary">返回列表</a></h2>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">基本信息</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>ID:</strong> {{ log.id }}</p>
+                <p><strong>发送时间:</strong> {{ log.sent_at }}</p>
+                <p><strong>SMTP配置:</strong> {{ log.smtp_name or '-' }}</p>
+                <p><strong>SMTP服务器:</strong> {{ log.smtp_host or '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>状态:</strong> 
+                    {% if log.status == 'success' %}
+                    <span class="badge bg-success">成功</span>
+                    {% elif log.status == 'partial' %}
+                    <span class="badge bg-warning">部分成功</span>
+                    {% else %}
+                    <span class="badge bg-danger">失败</span>
+                    {% endif %}
+                </p>
+                <p><strong>收件人总数:</strong> {{ log.recipient_count }}</p>
+                <p><strong>成功:</strong> {{ log.success_count }}</p>
+                <p><strong>失败:</strong> {{ log.fail_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">邮件内容</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>模板:</strong> {{ log.content_title or '-' }}</p>
+        <p><strong>主题:</strong> {{ log.subject or '-' }}</p>
+        {% if log.content_body %}
+        <p><strong>内容预览:</strong></p>
+        <div class="border rounded p-3 bg-light">
+            {{ log.content_body|safe }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if log.error_message %}
+<div class="card mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">失败详情</h5>
+    </div>
+    <div class="card-body">
+        <pre style="white-space: pre-wrap;">{{ log.error_message }}</pre>
+    </div>
+</div>
+{% endif %}
+
+{% if customers %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">本次发送的客户列表</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>邮箱</th>
+                        <th>姓名</th>
+                        <th>公司</th>
+                        <th>发送时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.email1 }}</td>
+                        <td>{{ customer.name or '-' }}</td>
+                        <td>{{ customer.company or '-' }}</td>
+                        <td>{{ customer.email_sent_at }}</td>
+                        <td>
+                            <a href="{{ url_for('customers.edit', id=customer.id) }}" class="btn btn-sm btn-outline-primary">查看</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
